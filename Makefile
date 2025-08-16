@@ -19,10 +19,11 @@ setup: setup-shared setup-dcrypto-part setup-dhosts-part setup-dsecboot-part
 all: setup
 
 setup-shared:
-	install -d $(PREFIX)/lib/dystopian-tools
+	install -d -m 755 $(PREFIX)/lib/dystopian-tools
 	install -m 640 lib/variables.sh $(PREFIX)/lib/dystopian-tools/variables.sh
 	install -m 640 lib/helper.sh $(PREFIX)/lib/dystopian-tools/helper.sh
-	install -d $(PREFIX)/share/doc/dystopian-tools
+
+	install -d -m 755 $(PREFIX)/share/doc/dystopian-tools
 	install -m 644 README.md $(PREFIX)/share/doc/dystopian-tools/README.md
 
 setup-dcrypto-part:
