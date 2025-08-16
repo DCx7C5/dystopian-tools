@@ -3,12 +3,12 @@
 
   "packages": {
     "dystopian-tools": {
-      "pkgver": "",
-      "pkgrel": "",
+      "pkgver": "0.0.1",
+      "pkgrel": "1",
       "last_build": "",
       "last_check": "",
       "upstream": "",
-      "access_token": ""
+      "repo_token": ""
     }
   }
 }
