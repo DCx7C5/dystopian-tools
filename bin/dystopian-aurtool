@@ -9,7 +9,6 @@ DB_LIB_FILE="/usr/lib/dystopian-tools/secboot-db.sh"
 HELPER_LIB_FILE="/usr/lib/dystopian-tools/helper.sh"
 SSL_LIB_FILE="/usr/lib/dystopian-tools/ssl.sh"
 GPG_LIB_FILE="/usr/lib/dystopian-tools/gpg.sh"
-SECBOOT_LIB_FILE="/usr/lib/dystopian-tools/secboot.sh"
 HOSTS_LIB_FILE="/usr/lib/dystopian-tools/hosts.sh"
 
 
@@ -18,7 +17,6 @@ HOSTS_LIB_FILE="/usr/lib/dystopian-tools/hosts.sh"
 [ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../lib/helper.sh"
 [ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../lib/ssl.sh"
 [ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../lib/gpg.sh"
-[ -f "$SECBOOT_LIB_FILE" ] || SECBOOT_LIB_FILE="$SCRIPT_DIR/../lib/secboot.sh"
 [ -f "$HOSTS_LIB_FILE" ] || HOSTS_LIB_FILE="$SCRIPT_DIR/../lib/hosts.sh"
 
 
@@ -33,8 +31,6 @@ HOSTS_LIB_FILE="/usr/lib/dystopian-tools/hosts.sh"
 [ -f "$SSL_LIB_FILE" ] && . "$SSL_LIB_FILE"
 # shellcheck source=../lib/gpg.sh
 [ -f "$GPG_LIB_FILE" ] && . "$GPG_LIB_FILE"
-#shellcheck source=../lib/secboot.sh
-[ -f "$SECBOOT_LIB_FILE" ] && . "$SECBOOT_LIB_FILE"
 #shellcheck source=../lib/hosts.sh
 [ -f "$HOSTS_LIB_FILE" ] && . "$HOSTS_LIB_FILE"
 #trap on_error_or_exit && exit 1 INT TERM HUP

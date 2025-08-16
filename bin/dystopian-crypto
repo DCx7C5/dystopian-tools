@@ -15,8 +15,6 @@ DB_LIB_FILE="/usr/lib/dystopian-tools/crypto-db.sh"
 HELPER_LIB_FILE="/usr/lib/dystopian-tools/helper.sh"
 SSL_LIB_FILE="/usr/lib/dystopian-tools/ssl.sh"
 GPG_LIB_FILE="/usr/lib/dystopian-tools/gpg.sh"
-HOSTS_LIB_FILE="/usr/lib/dystopian-tools/hosts.sh"
-SECBOOT_LIB_FILE="/usr/lib/dystopian-tools/secboot.sh"
 
 
 [ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../lib/variables.sh"
@@ -24,8 +22,7 @@ SECBOOT_LIB_FILE="/usr/lib/dystopian-tools/secboot.sh"
 [ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../lib/helper.sh"
 [ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../lib/ssl.sh"
 [ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../lib/gpg.sh"
-[ -f "$SECBOOT_LIB_FILE" ] || SECBOOT_LIB_FILE="$SCRIPT_DIR/../lib/secboot.sh"
-[ -f "$HOSTS_LIB_FILE" ] || HOSTS_LIB_FILE="$SCRIPT_DIR/../lib/hosts.sh"
+
 
 # Source library files
 # shellcheck source=../lib/variables.sh
@@ -38,11 +35,7 @@ SECBOOT_LIB_FILE="/usr/lib/dystopian-tools/secboot.sh"
 [ -f "$SSL_LIB_FILE" ] && . "$SSL_LIB_FILE"
 # shellcheck source=../lib/gpg.sh
 [ -f "$GPG_LIB_FILE" ] && . "$GPG_LIB_FILE"
-#shellcheck source=../lib/secboot.sh
-[ -f "$SECBOOT_LIB_FILE" ] && . "$SECBOOT_LIB_FILE"
-#shellcheck source=../lib/hosts.sh
-[ -f "$HOSTS_LIB_FILE" ] && . "$HOSTS_LIB_FILE"
-#trap on_error_or_exit && exit 1 INT TERM HUP
+
 trap on_exit EXIT
 
 VERBOSE=0
