@@ -242,7 +242,7 @@ cleanup_dcrypto_files() {
                 found_orphaned=true
                 echoi "Orphaned import_file: $file_path"
                 if [ "$cleanup_dry_run" != "true" ]; then
-                    rm -f -- "$file_path" 2>/dev/null || {
+                    rm -f -- "$file_path" || {
                         echoe "Failed to remove orphaned import_file: $file_path"
                         continue
                     }
@@ -286,9 +286,11 @@ cleanup_dcrypto_files() {
                                 continue
                             }
                             # Remove from index.json
-                            bkp_key=$(jq -r --arg idx "$index" --arg path "$old_backup" '.ssl.keys[$idx] | to_entries[] | select(.value == $path) | .key' "$DC_DB")
-                            if jq -e "del(.ssl.keys.\"$index\".\"$bkp_key\")" "$DC_DB" > "$DC_DB.tmp"; then
-                                mv -- "$DC_DB.tmp" "$DC_DB" 2>/dev/null
+                            bkp_key=$(jq -r --arg idx "$index" --arg path "$old_backup" '.ssl.keys[$idx] | to_entries[] | select(.value == $path) | .key' -- "$DC_DB")
+                            if jq -e "del(.ssl.keys.\"$index\".\"$bkp_key\")" -- "$DC_DB" > "$DC_DB.tmp"; then
+                                mv -- "$DC_DB.tmp" "$DC_DB" || {
+                                  echoe
+                                }
                                 set_permissions_and_owner "$DC_DB" 600
                             else
                                 echoe "Failed to update index.json for backup import_file: $old_backup"
@@ -305,7 +307,7 @@ cleanup_dcrypto_files() {
             else
                 echoi "Backup import_file (no index): $backup_file_path"
                 if [ "$cleanup_dry_run" != "true" ]; then
-                    rm -f -- "$backup_file_path" 2>/dev/null || {
+                    rm -f -- "$backup_file_path" || {
                         echoe "Failed to remove backup import_file: $backup_file_path"
                         continue
                     }
@@ -315,7 +317,9 @@ cleanup_dcrypto_files() {
                 fi
             fi
         done
-        rm -f -- "$tmpfile_backups" >/dev/null
+        rm -f -- "$tmpfile_backups" || {
+          echoe "Failed rempving"
+        }
         if [ "$found_backups" = "false" ]; then
             echoi "No backup files found"
         fi
@@ -342,13 +346,16 @@ cleanup_dcrypto_files() {
             fi
             echoi "Non-CA key import_file: $key_file (index $index)"
             if [ "$cleanup_dry_run" != "true" ]; then
-                rm -f -- "$key_file" 2>/dev/null || {
+                rm -f -- "$key_file" || {
                     echoe "Failed to remove non-CA key import_file: $key_file"
                     continue
                 }
                 # Remove the entire index entry
-                if jq -e "del(.ssl.keys.\"$index\")" "$DC_DB" > "$DC_DB.tmp"; then
-                    mv -- "$DC_DB.tmp" "$DC_DB" 2>/dev/null
+                if jq -e "del(.ssl.keys.\"$index\")" -- "$DC_DB" > "$DC_DB.tmp"; then
+                    mv -- "$DC_DB.tmp" "$DC_DB" || {
+                      echoe "Failed moving temporary database $DC_DB"
+                      return 1
+                    }
                     set_permissions_and_owner "$DC_DB" 600
                 else
                     echoe "Failed to update index.json for non-CA key: $key_file"
@@ -1050,9 +1057,21 @@ check_dependencies_secureboot() {
 bla
 }
 
+trigger_remount_efivars() {
+  efiline=$(mount | grep efivars)
+  if echo "$efiline" | grep -qE "\(rw"; then
+    mount -o ro,remount -- "$EFIVAR_PATH"
+  elif echo "$efiline" | grep -qE "\(ro"; then
+    mount -o rw,remount -- "$EFIVAR_PATH"
+  else
+    return 1
+  fi
+  return 0
+}
+
 remount_efivars_rw() {
     echod "Remounting efivars to read/write"
-    mount -o rw,remount /sys/firmware/efi/efivars || {
+    mount -o rw,remount -- "$EFIVAR_PATH" || {
         echoe "Failed remounting efivars to read/write"
         return 1
     }
@@ -1062,7 +1081,7 @@ remount_efivars_rw() {
 
 remount_efivars_ro() {
     echod "Remounting efivars to read only"
-    mount -o ro,remount /sys/firmware/efi/efivars || {
+    mount -o ro,remount -- "$EFIVAR_PATH" || {
         echoe "Failed remounting efivars to read only"
         return 1
     }
@@ -1109,9 +1128,11 @@ detect_distro() {
 }
 
 check_secureboot_status() {
-    SECUREBOOT_ENABLED=$(od --address-radix=n \
-                            --format=u1 "/sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c" | \
-                            awk -F' ' '{print $NF}')
+    SECUREBOOT_ENABLED=$(
+        od --address-radix=n \
+           --format=u1 "$EFIVAR_PATH/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c" | \
+        awk -F' ' '{print $NF}'
+    )
     if [ "$?" -ne 0 ]; then
         echoe "Failed checking secureboot status"
         return 1
@@ -1138,7 +1159,7 @@ backup_targz() {
     printf 'Created backup: %s\n' "$outfile"
   else
     printf 'Failed to create backup: %s\n' "$outfile" >&2
-    rm -f -- "$outfile" 2>/dev/null || true
+    rm -f -- "$outfile" || true
     return 1
   fi
   return 0

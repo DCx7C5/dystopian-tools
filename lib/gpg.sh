@@ -88,7 +88,6 @@ _gpg_export_secret_primary() {
 
     # No passphrase at all
     elif [ -z "$passphrase" ]; then
-        echoe TEST
         echod "Calling printf \"%s\" \"\" | $GPG_CMD \"$fingerprint\" > \"$out_path\""
         printf "%s" "" | $GPG_CMD "$fingerprint" > "$out_path"
 

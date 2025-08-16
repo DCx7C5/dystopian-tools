@@ -1178,7 +1178,7 @@ create_certificate_signing_request() {
     echod "Calling _create_and_verify_csr $csr_out $key_file $password $salt $cfg_out"
     _create_and_verify_csr "$csr_out" "$key_file" "$password" "$salt" "$cfg_out" || {
         echoe "Failed calling _create_and_verify_key"
-        rm -f -- "$cfg_out" "$csr_out"
+        rm -f -- "$cfg_out" "$csr_out" || true
         return 1
     }
     echosv "Creating and verifying CSR file succesful"

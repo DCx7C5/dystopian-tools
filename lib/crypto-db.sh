@@ -71,7 +71,7 @@ reset_ssl_index() {
     }' -- "$DC_DB" > "${DC_DB}.tmp"; then
         mv -- "${DC_DB}.tmp" "$DC_DB" || {
             echoe "Failed to reset SSL index"
-            rm -f -- "${DC_DB}.tmp" >/dev/null
+            rm -f -- "${DC_DB}.tmp" || true
             return 1
         }
     fi
@@ -89,7 +89,7 @@ reset_gpg_index() {
     }' -- "$DC_DB" > "${DC_DB}.tmp"; then
         mv -- "${DC_DB}.tmp" "$DC_DB" || {
             echoe "Failed to reset GPG index"
-            rm -f -- "${DC_DB}.tmp" >/dev/null
+            rm -f -- "${DC_DB}.tmp" || true
             return 1
         }
     fi
