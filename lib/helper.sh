@@ -147,7 +147,7 @@ show_index() {
     show_json="${3:-false}"
 
     if [ "$show_json" = "true" ]; then
-        jq '.' "$DC_DB"
+        jq '.' -- "$DC_DB"
         return 0
     fi
 
@@ -156,7 +156,7 @@ show_index() {
     echo ""
 
     # Show default CA
-    default_ca=$(jq -r '.ssl.defaultCA // "none"' "$DC_DB")
+    default_ca=$(jq -r '.ssl.defaultCA // "none"' -- "$DC_DB")
     echoi "Default CA: $default_ca"
     echo ""
 
@@ -165,21 +165,21 @@ show_index() {
         echo "  ------------------------"
         # Show root CAs
         echoi "Root CAs:"
-        jq -r '.ssl.ca.root | to_entries[] | "  - " + .key' "$DC_DB" 2>/dev/null || echo "  None"
+        jq -r '.ssl.ca.root | to_entries[] | "  - " + .key' -- "$DC_DB" 2>/dev/null || echo "  None"
 
         # Show intermediate CAs
         echoi "Intermediate CAs:"
-        jq -r '.ssl.ca.intermediate | to_entries[] | "  - " + .key' "$DC_DB" 2>/dev/null || echo "  None"
+        jq -r '.ssl.ca.intermediate | to_entries[] | "  - " + .key' -- "$DC_DB" 2>/dev/null || echo "  None"
         echo ""
     fi
 
     if [ "$show_keys" = "true" ] || [ "$show_ca" = "false" ]; then
         echoi "Keys and Certificates:"
         echo "  ----------------------"
-        key_count=$(jq -r '.ssl.keys | length' "$DC_DB")
+        key_count=$(jq -r '.ssl.keys | length' -- "$DC_DB")
 
         if [ "$VERBOSE" -eq 1 ]; then
-            jq -r '.ssl.keys | to_entries[] | "  - " + .key + ": " + (.value | to_entries | map(.key + "=" + .value) | join(", "))' "$DC_DB" 2>/dev/null
+            jq -r '.ssl.keys | to_entries[] | "  - " + .key + ": " + (.value | to_entries | map(.key + "=" + .value) | join(", "))' -- "$DC_DB" 2>/dev/null
         fi
         echo ""
         echos "Total key entries: $key_count"
@@ -211,7 +211,7 @@ cleanup_dcrypto_files() {
     # Clean specific index
     if [ -n "$cleanup_index" ]; then
         echoi "Cleaning up specific index: $cleanup_index"
-        if ! jq -e ".ssl.keys.\"$cleanup_index\"" "$DC_DB" >/dev/null 2>&1; then
+        if ! jq -e ".ssl.keys.\"$cleanup_index\"" -- "$DC_DB" >/dev/null 2>&1; then
             echoe "Index $cleanup_index does not exist in $DC_DB"
             return 1
         fi
@@ -237,8 +237,8 @@ cleanup_dcrypto_files() {
             file_path="$(realpath "$import_file")"
             echod "Checking if import_file is orphaned: $file_path"
             # Strip quotes from index.json paths
-            if ! jq -r '.ssl.keys | to_entries[] | .value | to_entries[] | .value' "$DC_DB" | sed 's/^"\(.*\)"$/\1/' | grep -Fx "$file_path" >/dev/null 2>&1 && \
-               ! jq -r '.ssl.ca | to_entries[] | .value | to_entries[] | .value' "$DC_DB" | sed 's/^"\(.*\)"$/\1/' | grep -Fx "$file_path" >/dev/null 2>&1; then
+            if ! jq -r '.ssl.keys | to_entries[] | .value | to_entries[] | .value' -- "$DC_DB" | sed 's/^"\(.*\)"$/\1/' | grep -Fx "$file_path" >/dev/null 2>&1 && \
+               ! jq -r '.ssl.ca | to_entries[] | .value | to_entries[] | .value' -- "$DC_DB" | sed 's/^"\(.*\)"$/\1/' | grep -Fx "$file_path" >/dev/null 2>&1; then
                 found_orphaned=true
                 echoi "Orphaned import_file: $file_path"
                 if [ "$cleanup_dry_run" != "true" ]; then
@@ -271,17 +271,17 @@ cleanup_dcrypto_files() {
             found_backups=true
             backup_file_path="$(realpath "$backup_file")"
             # Check if import_file is a csrbkp in index.json
-            index=$(jq -r --arg path "$backup_file_path" '.ssl.keys | to_entries[] | select(.value | to_entries[] | select(.key | test("^csrbkp") and .value == $path)) | .key' "$DC_DB")
+            index=$(jq -r --arg path "$backup_file_path" '.ssl.keys | to_entries[] | select(.value | to_entries[] | select(.key | test("^csrbkp") and .value == $path)) | .key' -- "$DC_DB")
             if [ -n "$index" ]; then
                 # Sort csrbkp entries by number and keep only the most recent $keep_backups
-                backup_files=$(jq -r --arg idx "$index" '.ssl.keys[$idx] | to_entries[] | select(.key | test("^csrbkp")) | .value' "$DC_DB" | sort -V)
+                backup_files=$(jq -r --arg idx "$index" '.ssl.keys[$idx] | to_entries[] | select(.key | test("^csrbkp")) | .value' -- "$DC_DB" | sort -V)
                 total_backups=$(echo "$backup_files" | wc -l)
                 if [ "$total_backups" -gt "$keep_backups" ]; then
                     delete_count=$((total_backups - keep_backups))
                     echo "$backup_files" | head -n "$delete_count" | while IFS= read -r old_backup; do
                         echoi "Backup import_file (index $index): $old_backup"
                         if [ "$cleanup_dry_run" != "true" ]; then
-                            rm -f -- "$old_backup" 2>/dev/null || {
+                            rm -f -- "$old_backup" || {
                                 echoe "Failed to remove backup import_file: $old_backup"
                                 continue
                             }
@@ -326,7 +326,7 @@ cleanup_dcrypto_files() {
     if [ "$cleanup_non_ca_keys" = "true" ]; then
         echoi "Cleaning up non-CA key files..."
         tmpfile_keys=$(mktemp) || { echoe "Failed to create temporary import_file for non-CA keys"; return 1; }
-        jq -r '.ssl.keys | to_entries[] | .key + " " + .value.key' "$DC_DB" > "$tmpfile_keys"
+        jq -r '.ssl.keys | to_entries[] | .key + " " + .value.key' -- "$DC_DB" > "$tmpfile_keys"
         found_keys=false
         while IFS= read -r line < "$tmpfile_keys"; do
             found_keys=true
@@ -334,7 +334,7 @@ cleanup_dcrypto_files() {
             key_file=$(echo "$line" | cut -d' ' -f2- | sed 's/^"\(.*\)"$/\1/')
             echod "Checking key import_file: $key_file (index $index)"
             # Get CA keys from index.json
-            ca_keys=$(jq -r '.ssl.ca | to_entries[] | .value | to_entries[] | .value | select(.key == "key") | .value' "$DC_DB" | sed 's/^"\(.*\)"$/\1/')
+            ca_keys=$(jq -r '.ssl.ca | to_entries[] | .value | to_entries[] | .value | select(.key == "key") | .value' -- "$DC_DB" | sed 's/^"\(.*\)"$/\1/')
             # Skip if key is a CA key
             if echo "$ca_keys" | grep -Fx "$key_file" >/dev/null 2>&1; then
                 echod "Key $key_file is a CA key, skipping"
@@ -385,7 +385,7 @@ list_certificate_authorities() {
         echoi ""
         echoi "Root CAs:"
         echoi "---------"
-        jq -r '.ssl.ca.root | to_entries[] | .key + " | " + (.value.name // "Unnamed") + " | " + (.value.created // "Unknown date")' "$DC_DB" 2>/dev/null | \
+        jq -r '.ssl.ca.root | to_entries[] | .key + " | " + (.value.name // "Unnamed") + " | " + (.value.created // "Unknown date")' -- "$DC_DB" 2>/dev/null | \
         while IFS='|' read -r index name created; do
             printf "  %-12s %-30s %s\n" "$index" "$name" "$created"
             if [ "$VERBOSE" -eq 1 ]; then
@@ -402,7 +402,9 @@ list_certificate_authorities() {
         echoi ""
         echoi "Intermediate CAs:"
         echoi "-----------------"
-        jq -r '.ssl.ca.intermediate | to_entries[] | .key + " | " + (.value.name // "Unnamed") + " | " + (.value.created // "Unknown date")' "$DC_DB" 2>/dev/null | \
+        jq -r '.ssl.ca.intermediate | to_entries[] |
+               .key + " | " + (.value.name // "Unnamed") + " |
+               " + (.value.created // "Unknown date")' -- "$DC_DB" 2>/dev/null | \
         while IFS='|' read -r index name created; do
             printf "  %-12s %-30s %s\n" "$index" "$name" "$created"
             if [ "$VERBOSE" -eq 1 ]; then
@@ -460,9 +462,11 @@ install_docker_cert() {
     fi
 
     echov "Docker Certificate Authority found in database"
-    ca_cert_file="$(jq -r '.ssl.ca.root.docker.cert // .ssl.ca.intermediate.docker.cert' "$DC_DB")"
+    ca_cert_file="$(jq -r '.ssl.ca.root.docker.cert //
+                          .ssl.ca.intermediate.docker.cert' -- "$DC_DB")"
     echod "Found CA certificate import_file: $ca_cert_file"
-    ca_key_file="$(jq -r '.ssl.ca.root.docker.key // .ssl.ca.intermediate.docker.key' "$DC_DB")"
+    ca_key_file="$(jq -r '.ssl.ca.root.docker.key //
+                          .ssl.ca.intermediate.docker.key' -- "$DC_DB")"
     echod "Found CA private key import_file: $ca_key_file"
 
     #daemon_json="/etc/docker/daemon.json"
@@ -564,7 +568,9 @@ check_ssl_database() {
     for f in $files; do
         f="$(realpath "$f")"
         ca_name="$(basename "$f" | awk -F. '{print $(NF-1)}')"
-        if ! jq -e --arg idx "$ca_name" '.ssl.ca.root // .ssl.ca.intermediate | to_entries[] | select(.key == $idx)' "$DC_DB"; then
+        if ! jq -e --arg idx "$ca_name" '.ssl.ca.root //
+                                        .ssl.ca.intermediate | to_entries[] |
+                                        select(.key == $idx)' -- "$DC_DB"; then
             echow "File is missing in database: $f"
         fi
     done
@@ -982,11 +988,11 @@ decrypt_gpg_key() {
 
     echod "Decrypt Key: tail -n +3 \"$path\" | openssl aes-256-cbc -d -iv \"$iv\" -K \"\$(_create_argon2id_derived_key_pw "" "")\""
 
-    tail -n +3 "$path" | openssl aes-256-cbc -d \
+    tail -n +3 -- "$path" | openssl aes-256-cbc -d \
             -iv "$iv" \
             -K "$(_create_argon2id_derived_key_pw "$3" "$salt")"
 
-    # jq -r --arg idx "$index" 'del(.gpg.keys[$idx].salt)' "$DC_DB"
+    # jq -r --arg idx "$index" 'del(.gpg.keys[$idx].salt)' -- "$DC_DB"
 
 }
 
@@ -1128,7 +1134,7 @@ backup_targz() {
     outfile="${dirname}.bkp.${ts}.${cnt}.tar.gz"
   done
   # create tarball from parent so archive contains base/...
-  if tar -C "$parent" -czf "$outfile" "$dirname" 2>/dev/null; then
+  if tar -C "$parent" -czf "$outfile" -- "$dirname" 2>/dev/null; then
     printf 'Created backup: %s\n' "$outfile"
   else
     printf 'Failed to create backup: %s\n' "$outfile" >&2

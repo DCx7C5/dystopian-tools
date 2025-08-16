@@ -845,7 +845,7 @@ create_certificate_authority() {
 
     if [ "$intermediate" = "true" ]; then
         root_ca_index="${18:+$(echo "${18}" | sed -e 's/\ /\_/g' -e 's/\-/\_/g' | tr "[:upper:]" "[:lower:]")}"
-        root_ca_index="${root_ca_index:-$(jq -r '.ssl.defaultCA // empty' "$DC_DB")}"
+        root_ca_index="${root_ca_index:-$(jq -r '.ssl.defaultCA // empty' -- "$DC_DB")}"
 
         if [ -z "$root_ca_index" ] && [ "$intermediate" = "true" ]; then
             echoe "Root CA Index must be set."
@@ -965,7 +965,7 @@ create_certificate_authority() {
         # Create self signed cert and key
         echod "Calling _create_and_verify_sscert with: $ca_key_out, $ca_cert_out, ${ca_pass:-"PASSWORD"}, ${ca_salt_out:+"SALT"}, $ca_conf_out, $no_argon, $days"
         if ! _create_and_verify_sscert "$ca_key_out" "$ca_cert_out" "$ca_pass" "$ca_salt_out" "$ca_conf_out" "$no_argon" "$days"; then
-            rm -f -- -- "$ca_key_out" "$ca_cert_out"
+            rm -f -- "$ca_key_out" "$ca_cert_out" || true
             echoe "Failed to generate self-signed CA certificate"
             return 1
         fi
@@ -997,7 +997,7 @@ create_certificate_authority() {
         echosv "Creating and verifying CERT successful"
 
         if [ "$keep_ca_csr" != "true" ]; then
-            rm -f -- -- "$ca_csr_out"
+            rm -f -- "$ca_csr_out"
         fi
 
         # Adding issuer to index dictionary if intermediate
@@ -1041,10 +1041,10 @@ create_certificate_authority() {
     fi
 
     # Set as default CA if first root CA
-    current_default=$(jq -r '.ssl.defaultCA // empty' "$DC_DB")
+    current_default=$(jq -r '.ssl.defaultCA // empty' -- "$DC_DB")
     if [ "$set_as_default" = "true" ] || { [ -z "$current_default" ] && [ "$ca_storage_type" = "root" ]; }; then
         echod "Setting as default root CA..."
-        if jq --arg ca_index "$index" '.ssl.defaultCA = $ca_index' "$DC_DB" > "${DC_DB}.tmp"; then
+        if jq --arg ca_index "$index" '.ssl.defaultCA = $ca_index' -- "$DC_DB" > "${DC_DB}.tmp"; then
             mv "${DC_DB}.tmp" "$DC_DB" || {
                 echoe "Failed saving database file."
             }
@@ -1216,7 +1216,7 @@ sign_certificate_request() {
     ca_pass="${7:+$([ -s "${7}" ] && absolutepath "${7}")}"
     ca_salt="${8:+$([ -s "${8}" ] && absolutepath "${8}")}"
 
-    ca_index="${ca_index:-$(jq -r '.ssl.defaultCA // empty' "$DC_DB")}"
+    ca_index="${ca_index:-$(jq -r '.ssl.defaultCA // empty' -- "$DC_DB")}"
     ca_cert_file="${ca_index:+$(get_value_from_ca_index "$ca_index" "cert")}"
     ca_key_file="${ca_index:+$(get_value_from_ca_index "$ca_index" "key")}"
     ca_salt="${ca_index:+$(get_value_from_ca_index "$ca_index" "salt")}"
@@ -1449,7 +1449,7 @@ create_certificate_revocation_list() {
     crl_days="$5"
 
     # Check for default CA in index.json if CA files not provided
-    default_ca=$(jq -r '.ssl.defaultCA // empty' "$DC_DB")
+    default_ca=$(jq -r '.ssl.defaultCA // empty' -- "$DC_DB")
     if [ -z "$ca_cert_file" ] || [ -z "$ca_key_file" ]; then
         if [ -n "$default_ca" ] && [ "$default_ca" != "null" ]; then
             echov "Using default CA: $default_ca"
@@ -1630,7 +1630,7 @@ _revoke_certificate() {
 
     # Check for default CA in index.json if CA files not provided
     if [ -z "$ca_cert_file" ] || [ -z "$ca_key_file" ]; then
-        default_ca=$(jq -r '.ssl.defaultCA // empty' "$DC_DB")
+        default_ca=$(jq -r '.ssl.defaultCA // empty' -- "$DC_DB")
         if [ -n "$default_ca" ] && [ "$default_ca" != "null" ]; then
             echov "Using default CA: $default_ca"
             ca_cert_file="${ca_cert_file:-$(get_storage "ca" "$default_ca" | jq -r '.cert // empty')}"
@@ -2081,7 +2081,7 @@ set_as_default_CA() {
         echoe "Index: $index not found in database."
         return 1
     fi
-    jq -r --arg idx "$index" '.ssl.defaultCA = $idx' "$DC_DB" > "${DC_DB}.tmp" || {
+    jq -r --arg idx "$index" '.ssl.defaultCA = $idx' -- "$DC_DB" > "${DC_DB}.tmp" || {
         echoe "Setting $index as defaultCA failed"
         rm -f -- "${DC_DB}.tmp"
         return 1

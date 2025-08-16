@@ -930,8 +930,8 @@ sign_pkgbuild() {
         tar -I "zstd" -cf "$path.tar.zst" "$path"
     fi
 
-    if [ -f "$path" ] && file "$path" | grep -iv "zstandard"; then
-        echoe "Unknown file type: $(file "$path" | awk -F',' '{print $1}')"
+    if [ -f "$path" ] && file -- "$path" | grep -iv "zstandard"; then
+        echoe "Unknown file type: $(file -- "$path" | awk -F',' '{print $1}')"
         return 1
     fi
 
