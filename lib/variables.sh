@@ -34,6 +34,7 @@ PK_GUID="8be4df61-93ca-11d2-aa0d-00e098032b8c"
 KEK_GUID="d719b2cb-3d3a-4596-a3bc-dad00e67656f"
 DB_GUID="d719b2cb-3d3a-4596-a3bc-dad00e67656f"
 DBX_GUID="d719b2cb-3d3a-4596-a3bc-dad00e67656f"
+EFIVAR_PATH=/sys/firmware/efi/efivars
 
 # HOSTS
 DH_DIR=/etc/dystopian-hosts
