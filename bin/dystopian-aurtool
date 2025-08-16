@@ -98,25 +98,15 @@ EOF
 
 
 main() {
-    set -- "$@"  # ensure we start with incoming args
-    pos=
-    while [ $# -gt 0 ]; do
-      case "$1" in
-        --verbose|-v) VERBOSE=1; shift;;
-        --quiet|-q) DEBUG=0; VERBOSE=0; QUIET=1; shift;;
-        --debug) DEBUG=1; VERBOSE=1; shift;;
-        --) shift; while [ $# -gt 0 ]; do pos="$pos||$1"; shift; done; break;;
-        -*) echo "Unknown option: $1" >&2; exit 1;;
-        *) pos="$pos||$1"; shift;;
-      esac
-    done
-    # Rebuild $@ without eval
+    preparse "$0" "$@"
     set --
+    old_IFS=$IFS
     IFS='||'
-    for a in $pos; do
-      [ -n "$a" ] && set -- "$@" "$a"
+    # shellcheck disable=SC2086
+    for a in $DC_POS_ARGS; do
+        [ -n "$a" ] && set -- "$@" "$a"
     done
-    IFS=' '
+    IFS=$old_IFS
 
     case "$1" in
         version)

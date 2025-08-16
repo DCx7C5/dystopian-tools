@@ -1164,3 +1164,33 @@ backup_targz() {
   fi
   return 0
 }
+
+# Replace the existing preparse implementation with this one
+preparse() {
+    DC_POS_ARGS=""
+    mcmd="$1"
+    shift
+    while [ $# -gt 0 ]; do
+        if [ "$1" = "--user" ] && echo "$mcmd" | grep -qE "hosts$|aurtool$"; then
+            if [ $# -gt 1 ]; then
+                DYSTOPIAN_USER="$2"
+                shift 2
+            else
+                echoe "--user requires an argument"; exit 1
+            fi
+        fi
+        case "$1" in
+            --verbose|-v) VERBOSE=1; shift;;
+            --quiet|-q) DEBUG=0; VERBOSE=0; QUIET=1; shift;;
+            --debug) DEBUG=1; VERBOSE=1; shift;;
+            *)
+                if [ -z "$DC_POS_ARGS" ]; then
+                    DC_POS_ARGS=$1
+                else
+                    DC_POS_ARGS=$DC_POS_ARGS"||$1"
+                fi
+                [ "$#" -gt 0 ] && shift
+                ;;
+        esac
+    done
+}

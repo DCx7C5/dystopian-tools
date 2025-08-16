@@ -10,8 +10,7 @@ DYSTOPIAN_USER="$(whoami || echo "root")"
 DYSTOPIAN_CLEANUP_FILES="$DC_DIR/**/*.tmp"
 DYSTOPIAN_PERM_FILES="$DC_DB"
 DYSTOPIAN_EXIT_STATE=""
-
-
+DC_POS_ARGS=
 
 # SSL / GnuPG
 DC_DIR=/etc/dystopian-crypto
