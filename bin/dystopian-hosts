@@ -100,28 +100,25 @@ EOF
 
 
 main() {
-    # Check verbose
-    new_args=""
-
-    # Preprocess arguments to check for --verbose, -v, or --debug
+    set -- "$@"  # ensure we start with incoming args
+    pos=
     while [ $# -gt 0 ]; do
-        case "$1" in
-            --verbose|-v) VERBOSE=1; shift;;
-            --quiet|-q) DEBUG=0 VERBOSE=0 QUIET=1; shift;;
-            --debug) DEBUG=1; VERBOSE=1; shift;;
-            *)
-                if [ -z "$new_args" ]; then
-                    new_args="$1"
-                else
-                    new_args="$new_args $1"
-                fi
-                shift
-                ;;
-        esac
+      case "$1" in
+        --verbose|-v) VERBOSE=1; shift;;
+        --quiet|-q) DEBUG=0; VERBOSE=0; QUIET=1; shift;;
+        --debug) DEBUG=1; VERBOSE=1; shift;;
+        --) shift; while [ $# -gt 0 ]; do pos="$pos||$1"; shift; done; break;;
+        -*) echo "Unknown option: $1" >&2; exit 1;;
+        *) pos="$pos||$1"; shift;;
+      esac
     done
-
-    # Restore the modified argument list
-    eval set -- "$new_args"
+    # Rebuild $@ without eval
+    set --
+    IFS='||'
+    for a in $pos; do
+      [ -n "$a" ] && set -- "$@" "$a"
+    done
+    IFS=' '
 
     case "$1" in
         sync)
