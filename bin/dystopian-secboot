@@ -111,13 +111,11 @@ main() {
 
     # Preprocess arguments to check for --verbose, -v, or --debug
     while [ $# -gt 0 ]; do
-        # shellcheck disable=SC2034
         case "$1" in
             --verbose|-v) VERBOSE=1; shift;;
             --quiet|-q) DEBUG=0 VERBOSE=0 QUIET=1; shift;;
             --debug) DEBUG=1; VERBOSE=1; shift;;
             *)
-                # Append argument to new_args string, preserving spaces
                 if [ -z "$new_args" ]; then
                     new_args="$1"
                 else
@@ -127,6 +125,7 @@ main() {
                 ;;
         esac
     done
+
     # Restore the modified argument list
     eval set -- "$new_args"
 
