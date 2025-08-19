@@ -34,6 +34,7 @@ AUR_LIB_FILE="/usr/lib/dystopian-tools/aurtool.sh"
 # shellcheck source=../lib/hosts.sh
 [ -f "$HOSTS_LIB_FILE" ] && . "$HOSTS_LIB_FILE"
 # shellcheck source=../lib/aurtool.sh
+[ -f "$AUR_LIB_FILE" ] && . "$AUR_LIB_FILE"
 #trap on_error_or_exit && exit 1 INT TERM HUP
 trap on_exit EXIT
 

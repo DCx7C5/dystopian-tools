@@ -4,18 +4,19 @@ SHELL := sh
 
 .PHONY: \
 	install uninstall setup remove all backup \
-	setup-shared setup-dcrypto-part setup-dsecboot-part setup-dhosts-part \
-	remove-shared remove-dcrypto remove-hosts remove-secboot \
-	bkp-tool
+	setup-shared setup-crypto-part setup-secboot-part setup-hosts-part \
+	setup-aurtool-part remove-shared remove-crypto remove-hosts remove-secboot \
+	remove-aurtool bkp-tool
 
 
 install: setup
 uninstall: remove
-remove: remove-dcrypto remove-hosts remove-secboot remove-shared
-setup-dcrypto: setup-shared setup-dcrypto-part
-setup-dsecboot: setup-shared setup-dsecboot-part
-setup-dhosts: setup-shared setup-dhosts-part
-setup: setup-shared setup-dcrypto-part setup-dhosts-part setup-dsecboot-part
+remove: remove-crypto remove-hosts remove-secboot remove-aurtool remove-shared
+setup-crypto: setup-shared setup-crypto-part
+setup-secboot: setup-shared setup-secboot-part
+setup-hosts: setup-shared setup-hosts-part
+setup-aurtool: setup-shared setup-aurtool-part
+setup: setup-shared setup-crypto-part setup-hosts-part setup-secboot-part setup-aurtool-part
 all: setup
 
 setup-shared:
@@ -26,7 +27,7 @@ setup-shared:
 	install -d -m 755 $(PREFIX)/share/doc/dystopian-tools
 	install -m 644 README.md $(PREFIX)/share/doc/dystopian-tools/README.md
 
-setup-dcrypto-part:
+setup-crypto-part:
 	install -m 750 bin/dystopian-crypto $(PREFIX)/bin/dystopian-crypto
 	install -d -m 755 /etc/dystopian-crypto
 	install -d -m 755 /etc/dystopian-crypto/ca
@@ -41,20 +42,27 @@ setup-dcrypto-part:
 	install -m 640 lib/ssl.sh $(PREFIX)/lib/dystopian-tools/ssl.sh
 	install -m 640 lib/gpg.sh $(PREFIX)/lib/dystopian-tools/gpg.sh
 
-setup-dsecboot-part:
+setup-secboot-part:
 	install -m 750 bin/dystopian-secboot $(PREFIX)/bin/dystopian-secboot
 	install -d -m 700 /etc/dystopian-secboot
 	install -d -m 700 /etc/dystopian-secboot/ms
-	install -m 600 conf/secboot-db.json /etc/secboot-crypto/secboot-db.json
-	install -m 640 lib/crypto-db.sh $(PREFIX)/lib/dystopian-tools/secboot-db.sh
+	install -m 600 conf/secboot-db.json /etc/dystopian-secboot/secboot-db.json
+	install -m 640 lib/secboot-db.sh $(PREFIX)/lib/dystopian-tools/secboot-db.sh
 	install -m 640 lib/secboot.sh $(PREFIX)/lib/dystopian-tools/secboot.sh
 
-setup-dhosts-part:
+setup-hosts-part:
 	install -m 750 bin/dystopian-hosts $(PREFIX)/bin/dystopian-hosts
 	install -d -m 755 /etc/dystopian-hosts
-	install -m 600 conf/hosts-db.json /etc/hosts-crypto/hosts-db.json
+	install -m 600 conf/hosts-db.json /etc/dystopian-hosts/hosts-db.json
 	install -m 640 lib/crypto-db.sh $(PREFIX)/lib/dystopian-tools/hosts-db.sh
 	install -m 640 lib/hosts.sh $(PREFIX)/lib/dystopian-tools/hosts.sh
+
+setup-aurtool-part:
+	install -m 750 bin/dystopian-aurtool $(PREFIX)/bin/dystopian-aurtool
+	install -d -m 755 /etc/dystopian-aurtool
+	install -m 600 conf/aurtool-db.json /etc/dystopian-aurtool/aurtool-db.json
+	install -m 640 lib/aurtool-db.sh $(PREFIX)/lib/dystopian-tools/aurtool-db.sh
+	install -m 640 lib/aurtool.sh $(PREFIX)/lib/dystopian-tools/aurtool.sh
 
 remove-shared:
 	rm -f $(PREFIX)/lib/dystopian-tools/variables.sh
@@ -69,9 +77,9 @@ remove-shared:
 	rm -f $(PREFIX)/share/doc/dystopian-tools/README.md
 	rmdir $(PREFIX)/share/doc/dystopian-tools || true
 
-remove-dcrypto: SRC = dystopian-crypto
-remove-dcrypto: bkp-tool
-remove-dcrypto:
+remove-crypto: SRC = dystopian-crypto
+remove-crypto: bkp-tool
+remove-crypto:
 	rm -f $(PREFIX)/bin/dystopian-crypto
 	rm -f /etc/dystopian-crypto/crypto-db.json
 	rmdir /etc/dystopian-crypto/ca/private || true
@@ -79,6 +87,7 @@ remove-dcrypto:
 	rmdir /etc/dystopian-crypto/cert/private || true
 	rmdir /etc/dystopian-crypto/cert || true
 	rmdir /etc/dystopian-crypto/old || true
+	rm -f /etc/dystopian-crypto/gnupg/*
 	rmdir /etc/dystopian-crypto/gnupg || true
 	rmdir /etc/dystopian-crypto/crl || true
 	rmdir /etc/dystopian-crypto || true
@@ -89,7 +98,6 @@ remove-secboot:
 	rm -f $(PREFIX)/bin/dystopian-secboot
 	rm -f /etc/dystopian-secboot/secboot-db.json
 	rmdir /etc/dystopian-secboot/ms || true
-	rmdir /etc/dystopian-secboot/ || true
 	rmdir /etc/dystopian-secboot || true
 
 remove-hosts: SRC = dystopian-hosts
@@ -98,9 +106,15 @@ remove-hosts:
 	rm -f $(PREFIX)/bin/dystopian-hosts
 	rm -f $(PREFIX)/lib/dystopian-tools/hosts-db.sh
 	rm -f /etc/dystopian-hosts/hosts-db.json
-	rmdir /etc/dystopian-hosts/ || true
 	rmdir /etc/dystopian-hosts || true
 
+remove-aurtool: SRC = dystopian-aurtool
+remove-aurtool: bkp-tool
+remove-aurtool:
+	rm -f $(PREFIX)/bin/dystopian-aurtool
+	rm -f $(PREFIX)/lib/dystopian-tools/aurtool-db.sh
+	rm -f /etc/dystopian-aurtool/aurtool-db.json
+	rmdir /etc/dystopian-aurtool || true
 
 bkp-tool:
 	@set -eu; \
