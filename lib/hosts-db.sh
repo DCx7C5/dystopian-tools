@@ -1,21 +1,30 @@
 # shellcheck shell=sh
 # shellcheck disable=SC2001
 
+# Set secure umask for all temporary file operations in this library
+umask 077
+
+
 set_default_host() {
-  jq -e --arg val "$1" '.defaultHost = $val' -- "$DH_DB" > "$DH_DB.tmp" || {
-    rm -f -- "$DH_DB.tmp"
+  temp_file=$(mktemp "${DH_DB}.XXXXXXX") || {
+    echoe "Failed creating temporary database file"
     return 1
   }
 
-  mv -- "${DH_DB}.tmp" "$DH_DB" || {
+  jq -e --arg val "$1" '.defaultHost = $val' -- "$DH_DB" > "$temp_file" || {
+    rm -f -- "$temp_file"
+    return 1
+  }
+
+  mv -- "$temp_file" "$DH_DB" || {
     echoe "Failed moving $DH_DB"
-    rm -f -- "$DH_DB.tmp"
+    rm -f -- "$temp_file"
     return 1
   }
 
-  rm -f -- "${DH_DB}.tmp" || {
-    echoe "Removing $DC_DB.tmp failed"
-    rm -f -- "$DC_DB.tmp"
+  rm -f -- "$temp_file" || {
+    echoe "Removing $temp_file failed"
+    rm -f -- "$temp_file"
     return 1
   }
 
@@ -27,37 +36,37 @@ get_default_host() {
 }
 
 set_host_value() {
+  temp_file=$(mktemp "${DH_DB}.XXXXXXX") || {
+    echoe "Failed creating temporary database file"
+    return 1
+  }
+
   if [ "$#" -eq 3 ]; then
     jq -e --arg idx "$1" \
           --arg key "$2" \
           --arg val "$3" \
-          '.hosts[$idx][$key] = $val' -- "$DH_DB" > "$DH_DB.tmp" || {
+          '.hosts[$idx][$key] = $val' -- "$DH_DB" > "$temp_file" || {
             echoe "Failed setting $2 = $3 at $1"
-            rm -f -- "$DH_DB.tmp"
+            rm -f -- "$temp_file"
             return 1
           }
   elif [ "$#" -eq 1 ]; then
     jq -e --arg idx "$1" \
-          '.hosts[$idx] = {}' -- "$DH_DB" > "$DH_DB.tmp" || {
+          '.hosts[$idx] = {}' -- "$DH_DB" > "$temp_file" || {
             echoe "Failed creating new host index: $1"
-            rm -f -- "$DH_DB.tmp"
+            rm -f -- "$temp_file"
             return 1
           }
   else
     return 1
   fi
 
-  mv -- "${DH_DB}.tmp" "$DH_DB" || {
+  mv -- "$temp_file" "$DH_DB" || {
     echoe "Failed moving $DH_DB"
-    rm -f -- "$DH_DB.tmp"
+    rm -f -- "$temp_file"
     return 1
   }
 
-  rm -f -- "${DH_DB}.tmp" || {
-    echoe "Removing $DH_DB.tmp failed"
-    rm -f -- "$DH_DB.tmp"
-    return 1
-  }
   return 0
 }
 
