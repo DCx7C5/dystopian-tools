@@ -97,33 +97,28 @@ EOF
 }
 
 
+preparse "$0" "$@"
+set --
+old_IFS=$IFS
+IFS='||'
+for a in $DC_POS_ARGS; do
+    [ -n "$a" ] && set -- "$@" "$a"
+done
+IFS=$old_IFS
 
-main() {
-    preparse "$0" "$@"
-    set --
-    old_IFS=$IFS
-    IFS='||'
-    # shellcheck disable=SC2086
-    for a in $DC_POS_ARGS; do
-        [ -n "$a" ] && set -- "$@" "$a"
-    done
-    IFS=$old_IFS
 
-    case "$1" in
-        version)
-            shift
-            bump=""
-            while [ $# -gt 0 ]; do
-                case "$1" in
-                    -help|--help) shorthelp "version"; exit 0;;
-                    *) echoe "Unknown option: $1"; shorthelp "version"; exit 1;;
-                esac
-            done
-            host_sync ""
-            ;;
-        -h|--help|-help) help; exit 0;;
-        *) echoe "Unknown command: $1"; help; exit 1;;
-    esac
-}
-
-main "$@"
+case "$1" in
+    version)
+        shift
+        bump=""
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                -help|--help) shorthelp "version"; exit 0;;
+                *) echoe "Unknown option: $1"; shorthelp "version"; exit 1;;
+            esac
+        done
+        host_sync ""
+        ;;
+    -h|--help|-help) help; exit 0;;
+    *) echoe "Unknown command: $1"; help; exit 1;;
+esac

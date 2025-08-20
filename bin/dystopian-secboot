@@ -51,24 +51,22 @@ Description:
 
 Commands:
 
-  init
-    --compat         Create keys using broadly compatible settings. (Default: false)
-    --tpm            Use TPM-backed keys if supported. (Default: false)
+  init                                Initialize secureboot environment, either loads or creates it
+    --compat                            Create keys using broadly compatible (rsa4096 instead of secpr384) settings. (Default: false)
+    --tpm                               Use TPM-backed keys if supported. (Default: false)
+    --force-create
+
+  status                              Show current Secure Boot state and enrolled keys.
+    --verify
 
   enroll
-    --ms             Fetch and enroll Microsoft-provided certificates where applicable.
-    --mok            Enroll Machine Owner Key (MOK).
-    --pk             Enroll Platform Key (PK).
-    --kek            Enroll Key Exchange Key (KEK).
-    --db             Enroll allowed database (db) keys/certs.
+    --ms                                Fetch and enroll secureboot keys with Microsoft-provided certificates where applicable.
+    --mok                               Enroll Machine Owner Key (MOK).
 
-  status
-    Show current Secure Boot state and enrolled keys.
 
 Other Commands:
   -v | --verbose                      Show verbose status informations
   -q | --quiet                        No output informations
-  --user <name>                       Give group ownership to user
   --debug                             Show debug status informations
   version                             Show version information
   help                                Show this help message
@@ -105,34 +103,31 @@ QUIET=0
 RAND="$(od -An -N2 -i /dev/urandom | tr -d ' ' | head -c 4)"
 
 
-main() {
-    preparse "$0" "$@"
-    set --
-    old_IFS=$IFS
-    IFS='||'
-    # shellcheck disable=SC2086
-    for a in $DC_POS_ARGS; do
-        [ -n "$a" ] && set -- "$@" "$a"
-    done
-    IFS=$old_IFS
+preparse "$0" "$@"
+set --
+old_IFS=$IFS
+IFS='||'
+for a in $DC_POS_ARGS; do
+    [ -n "$a" ] && set -- "$@" "$a"
+done
+IFS=$old_IFS
 
-    case "$1" in
-        init)
-            shift
-            compat="" tpm=""
-            while [ $# -gt 0 ]; do
-                case "$1" in
-                    --compat|--compatibility|-c) compat="true"; shift;;
-                    --tpm|-tpm|-t) tpm="true"; shift;;
-                    -help|--help|-h) shorthelp "init"; exit 0;;
-                    *) echoe "Unknown option: $1"; shorthelp "init"; exit 1;;
-                esac
-            done
-            host_sync ""
-            ;;
-        -h|--help|-help) help; exit 0;;
-        *) echoe "Unknown command: $1"; help; exit 1;;
-    esac
-}
 
-main "$@"
+case "$1" in
+    init)
+        shift
+        compat="" tpm=""
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                --compat|--compatibility|-c) compat="true"; shift;;
+                --tpm|-tpm|-t) tpm="true"; shift;;
+                --force-create|--create|-fc|--fc) force_create="true"; shift;;
+                -help|--help|-h) shorthelp "init"; exit 0;;
+                *) echoe "Unknown option: $1"; shorthelp "init"; exit 1;;
+            esac
+        done
+        host_sync ""
+        ;;
+    -h|--help|-help) help; exit 0;;
+    *) echoe "Unknown command: $1"; help; exit 1;;
+esac

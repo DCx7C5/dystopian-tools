@@ -58,7 +58,7 @@ Description:
 Commands:
 
   sync
-    --host HOST     Synchronize with a specific host from the hosts DB.
+    --host <host>     Synchronize with a specific host from the hosts DB.
     --all           Synchronize with all hosts in the hosts DB.
 
 
@@ -99,34 +99,30 @@ EOF
 }
 
 
-main() {
-    preparse "$0" "$@"
-    set --
-    old_IFS=$IFS
-    IFS='||'
-    # shellcheck disable=SC2086
-    for a in $DC_POS_ARGS; do
-        [ -n "$a" ] && set -- "$@" "$a"
-    done
-    IFS=$old_IFS
+preparse "$0" "$@"
+set --
+old_IFS=$IFS
+IFS='||'
+for a in $DC_POS_ARGS; do
+    [ -n "$a" ] && set -- "$@" "$a"
+done
+IFS=$old_IFS
 
-    case "$1" in
-        sync)
-            shift
-            host="" all=""
-            while [ $# -gt 0 ]; do
-                case "$1" in
-                    --host|-h) host="$2"; shift 2;;
-                    --all|-a) all="true"; shift;;
-                    -help|--help) shorthelp "sync"; exit 0;;
-                    *) echoe "Unknown option: $1"; shorthelp "sync"; exit 1;;
-                esac
-            done
-            host_sync ""
-            ;;
-        -h|--help|-help) help; exit 0;;
-        *) echoe "Unknown command: $1"; help; exit 1;;
-    esac
-}
 
-main "$@"
+case "$1" in
+    sync)
+        shift
+        host="" all=""
+        while [ $# -gt 0 ]; do
+            case "$1" in
+                --host|-h) host="$2"; shift 2;;
+                --all|-a) all="true"; shift;;
+                -help|--help) shorthelp "sync"; exit 0;;
+                *) echoe "Unknown option: $1"; shorthelp "sync"; exit 1;;
+            esac
+        done
+        host_sync ""
+        ;;
+    -h|--help|-help) help; exit 0;;
+    *) echoe "Unknown command: $1"; help; exit 1;;
+esac
