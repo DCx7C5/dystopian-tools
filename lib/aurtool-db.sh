@@ -5,7 +5,7 @@
 umask 077
 
 set_github_token() {
-  temp_file=$(mktemp "${DA_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DA_DIR/${DA_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }
@@ -20,15 +20,19 @@ set_github_token() {
     rm -f -- "$temp_file"
     return 1
   }
-
+  return 0
 }
 
 get_github_token() {
-  jq -r '.GITHUB_TOKEN // empty' -- "$DA_DB" || return 1
+  jq -r '.GITHUB_TOKEN // empty' -- "$DA_DB" || {
+    echoe "Failed getting GITHUB_TOKEN"
+    return 1
+  }
+  return 0
 }
 
 set_package_value() {
-  temp_file=$(mktemp "${DA_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DA_DIR/${DA_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }
@@ -46,10 +50,16 @@ set_package_value() {
     rm -f -- "$temp_file"
     return 1
   }
+
+  return 0
 }
 
 get_package_value() {
   jq -r --arg idx "$1" \
         --arg key "$2" \
-        '.packages[$idx][$key] // empty' -- "$DA_DB" || return 1
+        '.packages[$idx][$key] // empty' -- "$DA_DB" || {
+          echoe "Failed getting package value"
+          return 1
+        }
+  return 0
 }

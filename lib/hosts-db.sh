@@ -6,7 +6,7 @@ umask 077
 
 
 set_default_host() {
-  temp_file=$(mktemp "${DH_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DH_DIR/${DH_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }
@@ -36,7 +36,7 @@ get_default_host() {
 }
 
 set_host_value() {
-  temp_file=$(mktemp "${DH_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DH_DIR/${DH_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }

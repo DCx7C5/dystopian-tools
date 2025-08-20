@@ -6,7 +6,7 @@ umask 077
 
 
 set_owner_guid() {
-  temp_file=$(mktemp "${DS_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DS_DIR/${DS_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }
@@ -31,7 +31,7 @@ get_owner_guid() {
 }
 
 set_key_guid() {
-  temp_file=$(mktemp "${DS_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DS_DIR/${DS_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }
@@ -54,11 +54,14 @@ set_key_guid() {
 }
 
 get_key_guid() {
-  jq -r --arg idx "$1" '.[$idx].GUID // empty' -- "$DS_DB" || return 1
+  jq -r --arg idx "$1" '.[$idx].GUID // empty' -- "$DS_DB" || {
+    echoe "Failed getting key GUID"
+    return 1
+  }
 }
 
 set_key_value() {
-  temp_file=$(mktemp "${DS_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DS_DIR/${DS_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }
@@ -82,7 +85,7 @@ set_key_value() {
 }
 
 set_cert_value() {
-  temp_file=$(mktemp "${DS_DB}.XXXXXXX") || {
+  temp_file=$(mktemp "$DS_DIR/${DS_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
     return 1
   }

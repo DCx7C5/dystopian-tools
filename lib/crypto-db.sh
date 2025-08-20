@@ -63,7 +63,7 @@ get_defaultCA_cert() {
 
 
 reset_ssl_index() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -88,7 +88,7 @@ reset_ssl_index() {
 }
 
 reset_gpg_index() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -115,7 +115,7 @@ delete_key_from_keys_index() {
     key="$2"
     file_delete="${3:-true}"
 
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -145,7 +145,7 @@ delete_key_from_ca_index() {
     key="$2"
     file_delete="${3:-true}"
 
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -172,7 +172,7 @@ delete_key_from_ca_index() {
 
 cleanup_index() {
     index="$1"
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -198,7 +198,7 @@ backup_and_rename() {
     index="$2"
     outfile="$3"
 
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -330,7 +330,7 @@ add_to_ssl_keys_database() {
     key="$2"
     value="$3"
 
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -360,7 +360,7 @@ add_to_ca_database() {
     key="$3"
     value="$4"
 
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -385,7 +385,7 @@ add_to_ca_database() {
 }
 
 add_gpg_key() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -407,7 +407,7 @@ add_gpg_key() {
 }
 
 add_gpg_sub() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -431,7 +431,7 @@ add_gpg_sub() {
 
 
 add_to_gpg_key() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -528,7 +528,7 @@ cleanup_ca_index() {
     ca_type="$1"
     ca_index="$2"
 
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -552,7 +552,7 @@ cleanup_ca_index() {
 }
 
 cleanup_gpg_index() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -572,7 +572,7 @@ cleanup_gpg_index() {
 }
 
 add_to_encrypted_db() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -593,7 +593,7 @@ add_to_encrypted_db() {
 
 
 remove_from_encrypted_db_by_path() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
@@ -614,7 +614,7 @@ remove_from_encrypted_db_by_path() {
 
 
 add_to_gpg_subkeys() {
-    temp_file=$(mktemp "${DC_DB}.XXXXXXX") || {
+    temp_file=$(mktemp "$DC_DIR/${DC_DB}.XXXXXXX") || {
         echoe "Failed creating temporary database file"
         return 1
     }
