@@ -54,14 +54,15 @@ Description:
 
 Commands:
 
-  version
-    --getversion    Show the current package version.
-    --bumprelease   Bump the package release number.
-    --package       Build and package the project.
+  getversion                          Show the current package version.
 
+  bumprel                             Bump the package release number.
 
-Maintenance Commands:
+  createsrcs
 
+  buildpkg                            Build and package the project.
+
+  signpkg                             Sign the package.
 
 
 Other Commands:
