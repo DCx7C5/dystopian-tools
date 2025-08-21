@@ -82,12 +82,15 @@ Examples:
   # Build and package the project
   $0 version --package
 
+
 Files:
   System directory:      $DA_DIR/
   User config directory: $DA_HOME/
 
+
 Database:
   AUR tool database file: ${DA_DB:-N/A}
+
 
 Notes:
   • Version and packaging tasks may interact with PKGBUILD and VCS metadata

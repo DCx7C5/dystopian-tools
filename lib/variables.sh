@@ -6,7 +6,7 @@ VERSION=$(curl -s https://api.github.com/repos/dcx7c5/dcrypto | jq -r '.latest /
 PKGVER="${VERSION:+"$(echo "${VERSION}" | awk -F'-' '{print $1}')"}"
 PKGREL="${VERSION:+${VERSION##*-}}"
 
-DYSTOPIAN_USER="$(whoami || echo "root")"
+DYSTOPIAN_USER="$(whoami)"
 DYSTOPIAN_CLEANUP_FILES="$DC_DIR/**/*.tmp"
 DYSTOPIAN_PERM_FILES="$DC_DB"
 DYSTOPIAN_EXIT_STATE=""

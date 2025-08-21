@@ -82,12 +82,15 @@ Examples:
   # Show current Secure Boot status
   $0 status
 
+
 Files:
   Secure Boot directory: $DS_DIR/
   Microsoft objects dir: $DC_MS_DIR/
 
+
 Database:
   Secure Boot database file: $DS_DB
+
 
 Notes:
   • Requires root privileges for key creation and enrollment

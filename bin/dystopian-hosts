@@ -86,9 +86,11 @@ Files:
   System directory:      $DH_DIR/
   User config directory: $DH_HOME/
 
+
 Database:
   Hosts database (system): $DH_DIR/hosts-db.json
   Hosts database (user):   $DH_HOME/hosts-db.json
+
 
 Notes:
   • May require SSH access and credentials to target hosts

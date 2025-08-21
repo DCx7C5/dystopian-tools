@@ -208,8 +208,10 @@ SSL Files:
   Private keys:            $DC_KEY/
   CRL files:               $DC_CRL/
 
+
 GPG Files:
   GPG Home Directory:      $DC_GNUPG/
+
 
 Database:
   SSL/GnuPG database file: $DC_DB
