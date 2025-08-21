@@ -3,8 +3,8 @@
 
   "packages": {
     "dystopian-tools": {
-      "pkgver": "0.0.1",
-      "pkgrel": "1",
+      "pkgver": "",
+      "pkgrel": "",
       "last_build": "",
       "last_check": "",
       "hosts": "",
