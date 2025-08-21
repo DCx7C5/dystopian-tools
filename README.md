@@ -1,4 +1,4 @@
-# dystopian-crypto Shell Script
+# dystopian-tools Shell Script Collection
 
 ## TODO:
 
