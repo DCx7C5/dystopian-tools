@@ -4,6 +4,7 @@
 # Set secure umask for all temporary file operations in this library
 umask 077
 
+
 set_github_token() {
   temp_file=$(mktemp "$DA_DIR/${DA_DB}.XXXXXXX") || {
     echoe "Failed creating temporary database file"
@@ -23,6 +24,7 @@ set_github_token() {
   return 0
 }
 
+
 get_github_token() {
   jq -r '.GITHUB_TOKEN // empty' -- "$DA_DB" || {
     echoe "Failed getting GITHUB_TOKEN"
@@ -30,6 +32,29 @@ get_github_token() {
   }
   return 0
 }
+
+
+add_package() {
+  temp_file=$(mktemp "$DA_DIR/${DA_DB}.XXXXXXX") || {
+    echoe "Failed creating temporary database file"
+    return 1
+  }
+
+  jq -e --arg idx "$1" \
+        '.packages[$idx] = {}' -- "$DA_DB" > "$temp_file" || {
+          echoe "Failed adding new package to database"
+          return 1
+        }
+
+  mv -- "$temp_file" "$DA_DB" || {
+    echoe "Failed moving temporary database file"
+    rm -f -- "$temp_file"
+    return 1
+  }
+
+  return 0
+}
+
 
 set_package_value() {
   temp_file=$(mktemp "$DA_DIR/${DA_DB}.XXXXXXX") || {
@@ -53,6 +78,7 @@ set_package_value() {
 
   return 0
 }
+
 
 get_package_value() {
   jq -r --arg idx "$1" \

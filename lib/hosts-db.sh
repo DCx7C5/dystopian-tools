@@ -30,6 +30,7 @@ set_default_host() {
   return 0
 }
 
+
 get_default_host() {
   jq -r '.defaultHost // empty' -- "$DH_DB" || {
     echoe "Failed getting default host"
@@ -37,6 +38,21 @@ get_default_host() {
   }
   return 0
 }
+
+
+add_host() {
+  temp_file=$(mktemp "$DH_DIR/${DH_DB}.XXXXXXX") || {
+    echoe "Failed creating temporary database file"
+    return 1
+  }
+
+  jq -e --arg idx "$1" '.hosts[$idx] = {}' -- "$DH_DB" > "$temp_file" || {
+    echoe "Failed creating host entry in database"
+    return 1
+  }
+  return 0
+}
+
 
 set_host_value() {
   temp_file=$(mktemp "$DH_DIR/${DH_DB}.XXXXXXX") || {
@@ -72,6 +88,7 @@ set_host_value() {
   return 0
 }
 
+
 get_host_value() {
   jq -e --arg idx "$1" \
         --arg key "$2" \
@@ -81,4 +98,3 @@ get_host_value() {
         }
   return 0
 }
-
