@@ -27,12 +27,15 @@ set_default_host() {
     rm -f -- "$temp_file"
     return 1
   }
-
   return 0
 }
 
 get_default_host() {
-  jq -r '.defaultHost // empty' -- "$DH_DB" || return 1
+  jq -r '.defaultHost // empty' -- "$DH_DB" || {
+    echoe "Failed getting default host"
+    return 1
+  }
+  return 0
 }
 
 set_host_value() {
@@ -66,13 +69,16 @@ set_host_value() {
     rm -f -- "$temp_file"
     return 1
   }
-
   return 0
 }
 
 get_host_value() {
   jq -e --arg idx "$1" \
         --arg key "$2" \
-        '.hosts[$idx][$key]' -- "$DH_DB" || return 1
+        '.hosts[$idx][$key]' -- "$DH_DB" || {
+          echoe "Failed getting value from host entry"
+          return 1
+        }
+  return 0
 }
 
