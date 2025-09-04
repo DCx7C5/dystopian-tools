@@ -60,7 +60,7 @@ remove-secboot:
 bkp-tool:
 	@set -eu; \
 	. $(PREFIX)/lib/dystopian-lib/libtools-variables.sh; \
-	. $(PREFIX)/lib/dystopian-lib/libtools-helper.sh; \
+	. $(PREFIX)/lib/dystopian-lib/libhelper.sh; \
 	: "$${SRC:?Set SRC to a directory name (e.g. dystopian-crypto) or absolute path}"; \
 	case "$$SRC" in \
 		/*) _path="$$SRC" ;; \

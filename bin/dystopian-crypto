@@ -10,32 +10,31 @@ if [ "$(id -u)" -ne 0 ] && { [ "$1" != "--help" ] && [ "$1" != "-h" ]; }; then
 fi
 
 SCRIPT_DIR=$(cd "$(dirname "$0")" && pwd)
-VAR_LIB_FILE="/usr/lib/dystopian-tools/variables.sh"
-DB_LIB_FILE="/usr/lib/dystopian-tools/crypto-db.sh"
-HELPER_LIB_FILE="/usr/lib/dystopian-tools/helper.sh"
-SSL_LIB_FILE="/usr/lib/dystopian-tools/ssl.sh"
-GPG_LIB_FILE="/usr/lib/dystopian-tools/gpg.sh"
+VAR_LIB_FILE="/usr/lib/dystopian-libs/libtools-variables.sh"
+HELPER_LIB_FILE="/usr/lib/dystopian-libs/libhelper.sh"
+SSL_LIB_FILE="/usr/lib/dystopian-libs/libssl.sh"
+GPG_LIB_FILE="/usr/lib/dystopian-libs/libgpg.sh"
+DC_DB_LIB_FILE="/usr/lib/dystopian-libs/libcrypto-db.sh"
 
 
-[ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../lib/variables.sh"
-[ -f "$DB_LIB_FILE" ] || DB_LIB_FILE="$SCRIPT_DIR/../lib/crypto-db.sh"
-[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../lib/helper.sh"
-[ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../lib/ssl.sh"
-[ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../lib/gpg.sh"
+[ -f "$VAR_LIB_FILE" ] || VAR_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libtools-variables.sh"
+[ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libhelper.sh"
+[ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libssl.sh"
+[ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libgpg.sh"
+[ -f "$DC_DB_LIB_FILE" ] || DC_DB_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libcrypto-db.sh"
 
 
 # Source library files
-# shellcheck source=../lib/variables.sh
+# shellcheck source=../../dystopian-libs/lib/libtools-variables.sh
 [ -f "$VAR_LIB_FILE" ] && . "$VAR_LIB_FILE"
-# shellcheck source=../lib/crypto-db.sh
-[ -f "$DB_LIB_FILE" ] && . "$DB_LIB_FILE"
-# shellcheck source=../lib/helper.sh
+# shellcheck source=../../dystopian-libs/lib/libhelper.sh
 [ -f "$HELPER_LIB_FILE" ] && . "$HELPER_LIB_FILE"
-# shellcheck source=../lib/ssl.sh
+# shellcheck source=../../dystopian-libs/lib/libssl.sh
 [ -f "$SSL_LIB_FILE" ] && . "$SSL_LIB_FILE"
-# shellcheck source=../lib/gpg.sh
+# shellcheck source=../../dystopian-libs/lib/libgpg.sh
 [ -f "$GPG_LIB_FILE" ] && . "$GPG_LIB_FILE"
-
+# shellcheck source=../../dystopian-libs/lib/libcrypto-db.sh
+[ -f "$DB_LIB_FILE" ] && . "$DB_LIB_FILE"
 trap on_exit EXIT
 
 VERBOSE=0
