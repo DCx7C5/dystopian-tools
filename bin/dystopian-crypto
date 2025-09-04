@@ -21,7 +21,8 @@ DC_DB_LIB_FILE="/usr/lib/dystopian-libs/libcrypto-db.sh"
 [ -f "$HELPER_LIB_FILE" ] || HELPER_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libhelper.sh"
 [ -f "$SSL_LIB_FILE" ] || SSL_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libssl.sh"
 [ -f "$GPG_LIB_FILE" ] || GPG_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libgpg.sh"
-[ -f "$DC_DB_LIB_FILE" ] || DC_DB_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libcrypto-db.sh"
+[ -f "$DB_LIB_FILE" ] || DB_LIB_FILE="$SCRIPT_DIR/../../dystopian-libs/lib/libcrypto-db.sh"
+
 
 # Source library files
 # shellcheck source=../../dystopian-libs/lib/libtools-variables.sh
@@ -911,7 +912,7 @@ case "$1" in
         restore_dcrypto "$restore_from" "$restore_force"
         ;;
 
-    --reset-dystopian-crypto|reset-dystopian-crypto|--reset-dcrypto|reset-dcrypto)
+    --reset|--reset-dcrypto|reset-dcrypto|reset)
         shift
         reset_ssl="false"
         reset_gpg="false"
