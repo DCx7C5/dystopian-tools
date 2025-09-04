@@ -58,16 +58,6 @@
 ### ssl verify-cert
 - [ ] complete
 
-### ssl encrypt
-- [ ] asymmetric
-- [ ] symmetric (pbkdf2)
-- [ ] symmetric (argon2id)
-
-### ssl decrypt
-- [ ] asymmetric
-- [ ] symmetric (pbkdf2)
-- [ ] symmetric (argon2id)
-
 ### gpg genpair
 - [x] complete
 - [x] with subkeys
