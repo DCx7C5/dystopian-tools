@@ -31,8 +31,9 @@ jobs:
       - name: Create and push tag
         if: steps.get_next_version.outputs.hasNextVersion == 'true'
         run: |
-          git tag -s "v${{ steps.get_next_version.outputs.version }}" -m "Release v${{ steps.get_next_version.outputs.version }}"
-          git push origin "v${{ steps.get_next_version.outputs.version }}"
+          version="v${{ steps.get_next_version.outputs.version }}"
+          git tag -s "$version" -m "Release $version"
+          git push origin "$version"
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
 
