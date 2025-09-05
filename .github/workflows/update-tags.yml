@@ -12,7 +12,6 @@ jobs:
   update-tags:
     runs-on: ubuntu-latest
     steps:
-
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
@@ -36,15 +35,17 @@ jobs:
 
       - name: Get next version
         id: get_next_version
+        if: steps.check_commit.outputs.has_release_keyword == 'true'
         uses: thenativeweb/get-next-version@2.6.0
 
       - name: Import GPG key
+        if: steps.check_commit.outputs.has_release_keyword == 'true' && steps.get_next_version.outputs.hasNextVersion == 'true'
         run: echo "$GPG_PRIVATE_KEY" | gpg --batch --import
         env:
           GPG_PRIVATE_KEY: ${{ secrets.GPG_PRIVATE_KEY }}
 
       - name: Create and push tag
-        if: steps.get_next_version.outputs.hasNextVersion == 'true'
+        if: steps.check_commit.outputs.has_release_keyword == 'true' && steps.get_next_version.outputs.hasNextVersion == 'true'
         run: |
           version="v${{ steps.get_next_version.outputs.version }}"
           git config --global user.signingkey "$GPG_PRIVATE_KEY_ID"
